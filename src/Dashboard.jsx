@@ -285,95 +285,20 @@ export default function Dashboard({ user, onLogout }) {
           </div>
         </motion.header>
 
-        <section className="grid xl:grid-cols-[1.15fr_1fr] gap-4">
-          <div className="bg-zinc-950/80 border border-zinc-800 rounded-[1.75rem] p-4 md:p-5 shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <button className="p-2 rounded-xl bg-zinc-900 border border-zinc-800" onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}>
-                <ChevronLeft />
-              </button>
-              <div className="text-center">
-                <h2 className="font-black text-xl md:text-2xl">
-                  {calendarMonth.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
-                </h2>
-                <p className="text-xs text-zinc-500">Work, school, workouts, family</p>
-              </div>
-              <button className="p-2 rounded-xl bg-zinc-900 border border-zinc-800" onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))}>
-                <ChevronRight />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-7 gap-1.5 md:gap-2 text-center text-[10px] uppercase tracking-widest text-zinc-500 mb-2">
-              {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <div key={`${d}-${i}`}>{d}</div>)}
-            </div>
-
-            <div className="grid grid-cols-7 gap-1.5 md:gap-2">
-              {monthCells.map((day, i) => {
-                if (!day) return <div key={i} />;
-
-                const key = formatDate(day);
-                const events = (data.events || []).filter((e) => e.date === key);
-                const completed = checklistItems.filter((item) => data.days?.[key]?.checks?.[item.key]).length;
-                const isToday = key === todayKey();
-                const isSelected = selectedDate === key;
-
-                return (
-                  <button
-                    key={key}
-                    onClick={() => setSelectedDate(key)}
-                    className={`min-h-[72px] md:min-h-[96px] rounded-2xl border p-2 text-left transition relative overflow-hidden ${
-                      isSelected
-                        ? "border-amber-300 bg-amber-300/10 shadow-lg shadow-amber-500/10"
-                        : "border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/80"
-                    }`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <span className={`font-black text-sm ${isToday ? "text-amber-300" : "text-zinc-200"}`}>{day.getDate()}</span>
-                      {completed > 0 && <span className="text-[10px] text-emerald-300 bg-emerald-500/10 border border-emerald-400/20 px-1.5 rounded-full">{completed}/7</span>}
-                    </div>
-
-                    <div className="flex gap-1 mt-2 flex-wrap">
-                      {events.slice(0, 4).map((event) => (
-                        <span key={event.id} className={`w-2 h-2 rounded-full ${eventTypes[event.type]?.dot || "bg-zinc-500"}`} />
-                      ))}
-                    </div>
-
-                    <div className="hidden md:block mt-2 space-y-1">
-                      {events.slice(0, 2).map((event) => (
-                        <div
-                          key={event.id}
-                          className={`text-[10px] truncate rounded-lg border px-1.5 py-0.5 ${eventTypes[event.type]?.color || "border-zinc-700 bg-zinc-800"}`}
-                        >
-                          {event.title}
-                        </div>
-                      ))}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-4 text-xs">
-              {Object.entries(eventTypes).map(([key, type]) => (
-                <div key={key} className="flex items-center gap-2 text-zinc-400">
-                  <span className={`w-2.5 h-2.5 rounded-full ${type.dot}`} />
-                  {type.label}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-4">
+        <section className="grid xl:grid-cols-[0.9fr_1.1fr] gap-4">
+          <div className="space-y-4 xl:order-2">
             <div className="bg-zinc-950/80 border border-zinc-800 rounded-[1.75rem] p-4 md:p-5">
               <div className="flex justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-black">{getDayLabel(selectedDate)}</h2>
+                  <p className="text-xs uppercase tracking-[0.3em] text-amber-300">Today</p>
+                  <h2 className="text-2xl md:text-3xl font-black mt-1">{getDayLabel(selectedDate)}</h2>
                   <p className="text-zinc-400">{todayXp}/{maxDailyXp} XP today</p>
                 </div>
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="bg-black border border-zinc-700 rounded-xl p-2 h-fit"
+                  className="bg-black border border-zinc-700 rounded-xl p-2 h-fit max-w-[145px]"
                 />
               </div>
 
@@ -381,7 +306,7 @@ export default function Dashboard({ user, onLogout }) {
                 <div className="h-full bg-emerald-400" style={{ width: `${(todayXp / maxDailyXp) * 100}%` }} />
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-2 mt-4">
+              <div className="grid grid-cols-2 gap-2 mt-4">
                 {checklistItems.map((item) => {
                   const Icon = item.icon;
                   const checked = selectedDay.checks?.[item.key];
@@ -390,19 +315,52 @@ export default function Dashboard({ user, onLogout }) {
                     <button
                       key={item.key}
                       onClick={() => toggleCheck(item.key)}
-                      className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition ${
+                      className={`flex items-center gap-2 rounded-2xl border p-3 text-left transition min-h-[76px] ${
                         checked ? "bg-emerald-500/15 border-emerald-400/50" : "bg-black/30 border-zinc-800 hover:border-zinc-600"
                       }`}
                     >
-                      <Icon className="w-5 h-5" />
+                      <Icon className={`w-5 h-5 shrink-0 ${checked ? "text-emerald-300" : "text-zinc-400"}`} />
                       <div>
-                        <p className="font-semibold">{item.label}</p>
+                        <p className="font-semibold text-sm leading-tight">{item.label}</p>
                         <p className="text-xs text-zinc-400">+{item.xp} XP</p>
                       </div>
                     </button>
                   );
                 })}
               </div>
+            </div>
+
+            <div className="bg-zinc-950/80 border border-zinc-800 rounded-[1.75rem] p-4 md:p-5 space-y-4">
+              <h2 className="text-xl font-black flex items-center gap-2"><Utensils className="text-emerald-300" /> Food + Body</h2>
+
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <Input label="Today's Weight" value={selectedDay.weight || ""} onChange={(v) => updateDay({ weight: v })} />
+                <Input label="Current Weight" value={data.profile.currentWeight} onChange={(v) => updateProfile("currentWeight", v)} />
+                <Input label="Calories" value={data.profile.calorieTarget} onChange={(v) => updateProfile("calorieTarget", v)} />
+                <Input label="Protein" value={data.profile.proteinTarget} onChange={(v) => updateProfile("proteinTarget", v)} />
+                <Input label="Fiber" value={data.profile.fiberTarget} onChange={(v) => updateProfile("fiberTarget", v)} />
+              </div>
+
+              <textarea
+                className="w-full bg-black border border-zinc-700 rounded-2xl p-3 min-h-20"
+                placeholder="Breakfast plan/log"
+                value={selectedDay.breakfast || ""}
+                onChange={(e) => updateDay({ breakfast: e.target.value })}
+              />
+
+              <textarea
+                className="w-full bg-black border border-zinc-700 rounded-2xl p-3 min-h-20"
+                placeholder="Lunch plan/log"
+                value={selectedDay.lunch || ""}
+                onChange={(e) => updateDay({ lunch: e.target.value })}
+              />
+
+              <textarea
+                className="w-full bg-black border border-zinc-700 rounded-2xl p-3 min-h-20"
+                placeholder="One sentence journal"
+                value={selectedDay.notes || ""}
+                onChange={(e) => updateDay({ notes: e.target.value })}
+              />
             </div>
 
             <div className="bg-zinc-950/80 border border-zinc-800 rounded-[1.75rem] p-4 md:p-5">
@@ -435,9 +393,90 @@ export default function Dashboard({ user, onLogout }) {
               </div>
             </div>
           </div>
+
+          <div className="bg-zinc-950/80 border border-zinc-800 rounded-[1.75rem] p-4 md:p-5 shadow-2xl xl:order-1">
+            <div className="flex items-center justify-between mb-4">
+              <button className="p-2 rounded-xl bg-zinc-900 border border-zinc-800" onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}>
+                <ChevronLeft />
+              </button>
+              <div className="text-center">
+                <h2 className="font-black text-xl md:text-2xl">
+                  {calendarMonth.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+                </h2>
+                <p className="text-xs text-zinc-500">Tap a day to log it</p>
+              </div>
+              <button className="p-2 rounded-xl bg-zinc-900 border border-zinc-800" onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))}>
+                <ChevronRight />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-7 gap-1.5 md:gap-2 text-center text-[10px] uppercase tracking-widest text-zinc-500 mb-2">
+              {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <div key={`${d}-${i}`}>{d}</div>)}
+            </div>
+
+            <div className="grid grid-cols-7 gap-1.5 md:gap-2">
+              {monthCells.map((day, i) => {
+                if (!day) return <div key={i} />;
+
+                const key = formatDate(day);
+                const events = (data.events || []).filter((e) => e.date === key);
+                const completed = checklistItems.filter((item) => data.days?.[key]?.checks?.[item.key]).length;
+                const isToday = key === todayKey();
+                const isSelected = selectedDate === key;
+
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setSelectedDate(key)}
+                    className={`min-h-[58px] md:min-h-[90px] rounded-2xl border p-2 text-left transition relative overflow-hidden ${
+                      isSelected
+                        ? "border-amber-300 bg-amber-300/10 shadow-lg shadow-amber-500/10"
+                        : "border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/80"
+                    }`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <span className={`font-black text-sm ${isToday ? "text-amber-300" : "text-zinc-200"}`}>{day.getDate()}</span>
+                      {completed > 0 && <span className="hidden md:inline text-[10px] text-emerald-300 bg-emerald-500/10 border border-emerald-400/20 px-1.5 rounded-full">{completed}/7</span>}
+                    </div>
+
+                    <div className="flex gap-1 mt-2 flex-wrap">
+                      {completed > 0 && <span className="w-2 h-2 rounded-full bg-emerald-400" />}
+                      {events.slice(0, 4).map((event) => (
+                        <span key={event.id} className={`w-2 h-2 rounded-full ${eventTypes[event.type]?.dot || "bg-zinc-500"}`} />
+                      ))}
+                    </div>
+
+                    <div className="hidden md:block mt-2 space-y-1">
+                      {events.slice(0, 2).map((event) => (
+                        <div
+                          key={event.id}
+                          className={`text-[10px] truncate rounded-lg border px-1.5 py-0.5 ${eventTypes[event.type]?.color || "border-zinc-700 bg-zinc-800"}`}
+                        >
+                          {event.title}
+                        </div>
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-4 text-xs">
+              {Object.entries(eventTypes).map(([key, type]) => (
+                <div key={key} className="flex items-center gap-2 text-zinc-400">
+                  <span className={`w-2.5 h-2.5 rounded-full ${type.dot}`} />
+                  {type.label}
+                </div>
+              ))}
+              <div className="flex items-center gap-2 text-zinc-400">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                Logged
+              </div>
+            </div>
+          </div>
         </section>
 
-        <section className="grid xl:grid-cols-[1fr_1fr] gap-4">
+        <section className="grid xl:grid-cols-[1fr] gap-4">
           <div className="bg-zinc-950/80 border border-zinc-800 rounded-[1.75rem] p-4 md:p-5 space-y-4">
             <h2 className="text-xl font-black flex items-center gap-2"><Utensils className="text-emerald-300" /> Food + Body</h2>
 
@@ -563,4 +602,3 @@ function Input({ label, value, onChange }) {
     </label>
   );
 }
-
